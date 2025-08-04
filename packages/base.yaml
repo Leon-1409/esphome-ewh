@@ -14,6 +14,10 @@ substitutions:
   # add suffix for node name to have one firmware for many devices.
   node_add_mac_suffix: "true"
 
+  vport_version: "master" #2023.2.0
+  vport_source: github://dentra/esphome-components@$vport_version
+  vport_source_refresh: 1d
+
 esphome:
   name: $node_name
   friendly_name: $friendly_name
@@ -39,8 +43,9 @@ logger:
   baud_rate: 0
 
 external_components:
-  - source: github://dentra/esphome-components@2023.2.0
-    components: [crash_info, etl, otax, vport, esp32_usb_dis]
-    refresh: 1d
+  - source: $vport_source
+    components: [crash_info, etl, otax, vport]
+    refresh: $vport_source_refresh
+
   - source: $project_source
     refresh: $project_source_refresh
