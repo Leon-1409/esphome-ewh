@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "etl/frame_check_sequence.h"
 #include "etl/checksum.h"
 #include "etl/delegate.h"
@@ -155,7 +157,7 @@ class UartFrameIO {
     return etl::frame_check_sequence<checksum_policy>(data8, data8 + size).value();
   }
 
-  etl::delegate<bool(const rx_frame_t *frame)> check_crc{[](const rx_frame_t *frame) -> bool {
+  std::function<bool(const rx_frame_t *frame)> check_crc{[](const rx_frame_t *frame) -> bool {
     return calc_crc(frame, frame->size + sizeof(rx_frame_hdr_t)) == frame->crc();
   }};
 
