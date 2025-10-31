@@ -7,7 +7,6 @@ from .. import vport  # pylint: disable=relative-beyond-top-level
 
 CODEOWNERS = ["@dentra"]
 DEPENDENCIES = ["vport"]
-AUTO_LOAD = ["etl"]
 
 rka_ns = cg.esphome_ns.namespace("rka_api")
 

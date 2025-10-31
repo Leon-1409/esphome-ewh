@@ -27,7 +27,8 @@ void RKACloudPair::pair_(bool enable) {
   this->cancel_timeout(TAG);
 
   this->udp_ = new UDPServer();
-  this->udp_->on_packet(UDPServer::on_packet_type::create<RKACloudPair, &RKACloudPair::on_packet_>(*this));
+  this->udp_->on_packet(
+      [this](const uint8_t *data, size_t size, uint32_t addr, uint16_t port) { on_packet_(data, size, addr, port); });
   if (!this->udp_->listen_multicast(SMARTLINK_GROUP, SMARTLINK_PORT)) {
     delete this->udp_;
     this->udp_ = nullptr;

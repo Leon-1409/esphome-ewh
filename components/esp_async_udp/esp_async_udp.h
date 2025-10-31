@@ -1,6 +1,6 @@
 #pragma once
 
-#include "etl/delegate.h"
+#include <functional>
 
 #if defined(USE_ESP8266_FRAMEWORK_ARDUINO) || defined(USE_TESTS)
 #include "ESPAsyncUDP.h"
@@ -11,7 +11,7 @@ namespace esp_async_udp {
 
 class ESPAsyncUDPBase {
  public:
-  using on_packet_type = etl::delegate<void(const uint8_t *data, size_t size, uint32_t addr, uint16_t port)>;
+  using on_packet_type = std::function<void(const uint8_t *data, size_t size, uint32_t addr, uint16_t port)>;
   void on_packet(on_packet_type &&cb) { this->cb_packet_ = std::move(cb); }
 
  protected:

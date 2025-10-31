@@ -2,10 +2,6 @@
 
 #include <functional>
 
-#include "etl/frame_check_sequence.h"
-#include "etl/checksum.h"
-#include "etl/delegate.h"
-
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/hal.h"
@@ -32,13 +28,12 @@ namespace rka_api {
 
 // max_frame_size_value - size of frame data without magic, size and crc
 template<size_t max_frame_size_value, uint8_t magic_value = 0xAA, typename size_type = uint8_t,
-         typename checksum_policy = etl::checksum_policy_sum<size_type>>
+         typename crc_type = uint8_t>
 class UartFrameIO {
   static_assert(std::is_integral<size_type>::value);
-  static_assert(std::is_class<checksum_policy>::value);
+  static_assert(std::is_integral<crc_type>::value);
 
   using magic_type = uint8_t;
-  using crc_type = typename checksum_policy::value_type;
 
   constexpr static const char *const TAG = "uart_frame_io";
 
@@ -123,14 +118,12 @@ class UartFrameIO {
   template<class U> void write(U *uart, const uint8_t *data, size_t size) {
     rx_frame_hdr_t hdr{.magic = magic_value, .size = static_cast<size_type>(size)};
 
-    etl::frame_check_sequence<checksum_policy> crc_seq;
-    crc_seq.add(reinterpret_cast<uint8_t *>(&hdr), reinterpret_cast<uint8_t *>(&hdr) + sizeof(hdr));
+    auto crc = calc_crc(&hdr, sizeof(hdr));
     uart->write_array(reinterpret_cast<uint8_t *>(&hdr), sizeof(hdr));
     if (size != 0) {
-      crc_seq.add(data, data + size);
+      crc = calc_crc(crc, data, size);
       uart->write_array(data, size);
     }
-    crc_type crc = crc_seq.value();
     uart->write_array(reinterpret_cast<uint8_t *>(&crc), sizeof(crc));
     uart->flush();
 #if RKA_DO_DUMP_TX
@@ -151,14 +144,19 @@ class UartFrameIO {
   using reader_type = std::function<void(const void *data, size_t size)>;
   void set_reader(reader_type &&reader) { this->reader_ = std::move(reader); }
 
-  static crc_type calc_crc(const void *data, size_t size) {
+  static crc_type calc_crc(crc_type init, const void *data, size_t size) {
     auto data8 = static_cast<const uint8_t *>(data);
-    return etl::frame_check_sequence<checksum_policy>(data8, data8 + size).value();
+    while (size--) {
+      init += *data8++;
+    }
+    return init;
   }
 
-  std::function<bool(const rx_frame_t *frame)> check_crc{[](const rx_frame_t *frame) -> bool {
+  static crc_type calc_crc(const void *data, size_t size) { return calc_crc(0, data, size); }
+
+  bool check_crc(const rx_frame_t *frame) {
     return calc_crc(frame, frame->size + sizeof(rx_frame_hdr_t)) == frame->crc();
-  }};
+  };
 
  protected:
   reader_type reader_;

@@ -205,9 +205,9 @@ void RKACloud::connect() {
 
   ESP_LOGD(TAG, "Connecting to %s:%u...", this->host_, this->port_);
   this->tcp_ = new TCPClient();
-  this->tcp_->on_connect(TCPClient::on_conn_type::create<RKACloud, &RKACloud::on_connect_>(*this));
-  this->tcp_->on_disconnect(TCPClient::on_conn_type::create<RKACloud, &RKACloud::on_disconnect_>(*this));
-  this->tcp_->on_data(TCPClient::on_data_type::create<RKACloud, &RKACloud::on_data_>(*this));
+  this->tcp_->on_connect([this]() { this->on_connect_(); });
+  this->tcp_->on_disconnect([this]() { this->on_disconnect_(); });
+  this->tcp_->on_data([this](const void *data, size_t size) { this->on_data_(data, size); });
   if (!this->tcp_->connect(this->host_, this->port_)) {
     ESP_LOGW(TAG, "Connection failed");
     this->disconnect();

@@ -7,8 +7,8 @@ CODEOWNERS = ["@dentra"]
 
 def AUTO_LOAD():
     if CORE.using_arduino:
-        return ["etl", "async_tcp"]
-    return ["etl"]
+        return ["async_tcp"]
+    return []
 
 
 CONFIG_SCHEMA = cv.All(

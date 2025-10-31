@@ -1,8 +1,8 @@
 #pragma once
 
-#include "esphome/core/log.h"
+#include <functional>
 
-#include "etl/delegate.h"
+#include "esphome/core/log.h"
 
 #if defined(USE_ESP8266_FRAMEWORK_ARDUINO) || defined(USE_TESTS)
 #include "ESPAsyncTCP.h"
@@ -13,8 +13,8 @@ namespace esp_async_tcp {
 
 class ESPAsyncClientBase {
  public:
-  using on_conn_type = etl::delegate<void()>;
-  using on_data_type = etl::delegate<void(const void *data, size_t size)>;
+  using on_conn_type = std::function<void()>;
+  using on_data_type = std::function<void(const void *data, size_t size)>;
 
   void on_connect(on_conn_type &&cb) { this->cb_connect_ = std::move(cb); }
   void on_disconnect(on_conn_type &&cb) { this->cb_disconnect_ = std::move(cb); }

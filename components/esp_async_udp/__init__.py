@@ -4,7 +4,7 @@ from esphome.core import CORE, coroutine_with_priority
 
 CODEOWNERS = ["@dentra"]
 
-AUTO_LOAD = ["etl"]
+AUTO_LOAD = []
 
 CONFIG_SCHEMA = cv.All(
     cv.Schema({}),
