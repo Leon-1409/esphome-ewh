@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "esphome/core/log.h"
 #include "esphome/components/uart/uart_component.h"
 
@@ -22,12 +24,12 @@ template<size_t max_frame_size_v> class RKAUartIO {
 
  public:
   explicit RKAUartIO(uart::UARTComponent *uart) : uart_(uart) {
-    this->io_.set_reader(io_t::reader_type::template create<this_t, &this_t::on_frame_>(*this));
+    this->io_.set_reader([this](const void *data, size_t size) { this->on_frame_(data, size); });
   }
 
   void poll() { this->io_.read(this->uart_); }
 
-  using on_frame_type = etl::delegate<void(const rka_any_frame_t &data, size_t size)>;
+  using on_frame_type = std::function<void(const rka_any_frame_t &data, size_t size)>;
   void set_on_frame(on_frame_type &&reader) { this->reader_ = std::move(reader); }
 
   void write(const rka_any_frame_t &data, size_t size) {

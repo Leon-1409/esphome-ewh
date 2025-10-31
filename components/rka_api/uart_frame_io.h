@@ -148,9 +148,8 @@ class UartFrameIO {
 #endif
   }
 
-  using reader_type = etl::delegate<void(const void *data, size_t size)>;
+  using reader_type = std::function<void(const void *data, size_t size)>;
   void set_reader(reader_type &&reader) { this->reader_ = std::move(reader); }
-  reader_type reader_;
 
   static crc_type calc_crc(const void *data, size_t size) {
     auto data8 = static_cast<const uint8_t *>(data);
@@ -162,6 +161,7 @@ class UartFrameIO {
   }};
 
  protected:
+  reader_type reader_;
   struct {
     size_type size;
     uint8_t data[max_frame_size_value + sizeof(rx_frame_t)];
