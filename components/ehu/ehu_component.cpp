@@ -135,8 +135,8 @@ void EHUComponent::publish_fan_state_(const ehu_state_t &state) {
   }
 
   auto &preset = this->get_fan_preset_(state);
-  if (preset != this->fan_->preset_mode) {
-    this->fan_->preset_mode = preset;
+  if (preset != this->fan_->get_preset_mode()) {
+    this->fan_->set_preset_mode(preset);
     has_changes = true;
   }
 
@@ -243,7 +243,7 @@ fan::FanTraits EHUFan::get_traits() {
   auto traits = fan::FanTraits();
   traits.set_speed(true);
   traits.set_supported_speed_count(3);
-  traits.set_supported_preset_modes(ALL_FAN_PRESETS);
+  traits.set_supports_preset(true);
   return traits;
 }
 
