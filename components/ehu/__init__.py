@@ -150,7 +150,7 @@ EHU_COMPONENT_SCHEMA = cv.Schema(
             key=CONF_NAME,
         ),
         cv.Optional(CONF_FAN): cv.maybe_simple_value(
-            fan.FAN_SCHEMA.extend({cv.GenerateID(): cv.declare_id(EHUFan)}),
+            fan._FAN_SCHEMA.extend({cv.GenerateID(): cv.declare_id(EHUFan)}),
             key=CONF_NAME,
         ),
         cv.Optional(CONF_TARGET_HUMIDITY): cv.maybe_simple_value(
