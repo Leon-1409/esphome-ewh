@@ -92,7 +92,7 @@ void EHUComponent::on_state(const ehu_state_t &state) {
 
   if (this->fan_preset_) {
     auto &preset = this->get_fan_preset_(state);
-    if (!preset.empty() && this->fan_preset_->state != preset) {
+    if (!preset.empty() && this->fan_preset_->current_option() != preset) {
       this->fan_preset_->publish_state(preset);
     }
   }
